@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33110.190
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetroDownloader", "RetroDownloader\RetroDownloader.csproj", "{6FF83144-6514-4530-B03D-85E2295FCB30}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6FF83144-6514-4530-B03D-85E2295FCB30}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6FF83144-6514-4530-B03D-85E2295FCB30}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6FF83144-6514-4530-B03D-85E2295FCB30}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6FF83144-6514-4530-B03D-85E2295FCB30}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3BEF81EC-D6F0-43E7-8ED8-6F2A984C6D05}
+	EndGlobalSection
+EndGlobal
