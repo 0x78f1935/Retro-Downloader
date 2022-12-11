@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "RetroDownloader": {
+      "commandName": "Project",
+      "commandLineArgs": "-A --out ./tmp -v -w 25"
+    }
+  }
+}
