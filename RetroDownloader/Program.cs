@@ -561,7 +561,7 @@ namespace RetroDownloader
                 foreach (XmlNode node in root.ChildNodes)
                 {
                     string name = node.Attributes["id"].Value.ToString();
-                    AddToQueue(new Uri(ParseFormat($"{urlGordon}/{buildVersion}/{name}.swf")), $"/gordon/{buildVersion}/");
+                    AddToQueue(new Uri(ParseFormat($"{urlGordon}/{buildVersion}/{name}.swf")), $"/gordon/{buildVersion}/figure/");
                 }
             
                 xmlData = request(urlFigureMapV2);
@@ -570,7 +570,7 @@ namespace RetroDownloader
                 foreach (XmlNode node in root.ChildNodes)
                 {
                     string name = node.Attributes["id"].Value.ToString();
-                    AddToQueue(new Uri(ParseFormat($"{urlGordon}/{buildVersion}/{name}.swf")), $"/gordon/{buildVersion}/");
+                    AddToQueue(new Uri(ParseFormat($"{urlGordon}/{buildVersion}/{name}.swf")), $"/gordon/{buildVersion}/figure/");
                 }
             }
             #endregion
@@ -584,7 +584,7 @@ namespace RetroDownloader
                 foreach (XmlNode node in root.ChildNodes)
                 {
                     string name = node.Attributes["lib"].Value.ToString();
-                    AddToQueue(new Uri(ParseFormat($"{urlGordon}/{buildVersion}/{name}.swf")), $"/gordon/{buildVersion}/");
+                    AddToQueue(new Uri(ParseFormat($"{urlGordon}/{buildVersion}/{name}.swf")), $"/gordon/{buildVersion}/effects/");
                 }
             }
             #endregion
@@ -957,41 +957,41 @@ namespace RetroDownloader
             }
 
             if (doPets || downloadAll) {
-                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/bear.swf"), $"/gordon/{buildVersion}/bear.swf");
-                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/bearbaby.swf"), $"/gordon/{buildVersion}/bearbaby.swf");
-                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/bunnydepressed.swf"), $"/gordon/{buildVersion}/bunnydepressed.swf");
-                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/bunnyeaster.swf"), $"/gordon/{buildVersion}/bunnyeaster.swf");
-                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/bunnyevil.swf"), $"/gordon/{buildVersion}/bunnyevil.swf");
-                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/bunnylove.swf"), $"/gordon/{buildVersion}/bunnylove.swf");
-                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/cat.swf"), $"/gordon/{buildVersion}/cat.swf");
-                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/chicken.swf"), $"/gordon/{buildVersion}/chicken.swf");
-                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/cow.swf"), $"/gordon/{buildVersion}/cow.swf");
-                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/croco.swf"), $"/gordon/{buildVersion}/croco.swf");
-                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/demonmonkey.swf"), $"/gordon/{buildVersion}/demonmonkey.swf");
-                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/dog.swf"), $"/gordon/{buildVersion}/dog.swf");
-                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/dragon.swf"), $"/gordon/{buildVersion}/dragon.swf");
-                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/fools.swf"), $"/gordon/{buildVersion}/fools.swf");
-                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/frog.swf"), $"/gordon/{buildVersion}/frog.swf");
-                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/gnome.swf"), $"/gordon/{buildVersion}/gnome.swf");
-                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/haloompa.swf"), $"/gordon/{buildVersion}/haloompa.swf");
-                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/horse.swf"), $"/gordon/{buildVersion}/horse.swf");
-                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/kittenbaby.swf"), $"/gordon/{buildVersion}/kittenbaby.swf");
-                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/lion.swf"), $"/gordon/{buildVersion}/lion.swf");
-                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/monkey.swf"), $"/gordon/{buildVersion}/monkey.swf");
-                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/monster.swf"), $"/gordon/{buildVersion}/monster.swf");
-                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/monsterplant.swf"), $"/gordon/{buildVersion}/monsterplant.swf");
-                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/pig.swf"), $"/gordon/{buildVersion}/pig.swf");
-                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/pigeonevil.swf"), $"/gordon/{buildVersion}/pigeonevil.swf");
-                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/pigeongood.swf"), $"/gordon/{buildVersion}/pigeongood.swf");
-                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/pigletbaby.swf"), $"/gordon/{buildVersion}/pigletbaby.swf");
-                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/pterosaur.swf"), $"/gordon/{buildVersion}/pterosaur.swf");
-                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/puppybaby.swf"), $"/gordon/{buildVersion}/puppybaby.swf");
-                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/rhino.swf"), $"/gordon/{buildVersion}/rhino.swf");
-                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/spider.swf"), $"/gordon/{buildVersion}/spider.swf");
-                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/terrier.swf"), $"/gordon/{buildVersion}/terrier.swf");
-                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/terrierbaby.swf"), $"/gordon/{buildVersion}/terrierbaby.swf");
-                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/turtle.swf"), $"/gordon/{buildVersion}/turtle.swf");
-                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/velociraptor.swf"), $"/gordon/{buildVersion}/velociraptor.swf");
+                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/bear.swf"), $"/gordon/{buildVersion}/pets/bear.swf");
+                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/bearbaby.swf"), $"/gordon/{buildVersion}/pets/bearbaby.swf");
+                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/bunnydepressed.swf"), $"/gordon/{buildVersion}/pets/bunnydepressed.swf");
+                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/bunnyeaster.swf"), $"/gordon/{buildVersion}/pets/bunnyeaster.swf");
+                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/bunnyevil.swf"), $"/gordon/{buildVersion}/pets/bunnyevil.swf");
+                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/bunnylove.swf"), $"/gordon/{buildVersion}/pets/bunnylove.swf");
+                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/cat.swf"), $"/gordon/{buildVersion}/pets/cat.swf");
+                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/chicken.swf"), $"/gordon/{buildVersion}/pets/chicken.swf");
+                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/cow.swf"), $"/gordon/{buildVersion}/pets/cow.swf");
+                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/croco.swf"), $"/gordon/{buildVersion}/pets/croco.swf");
+                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/demonmonkey.swf"), $"/gordon/{buildVersion}/pets/demonmonkey.swf");
+                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/dog.swf"), $"/gordon/{buildVersion}/pets/dog.swf");
+                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/dragon.swf"), $"/gordon/{buildVersion}/pets/dragon.swf");
+                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/fools.swf"), $"/gordon/{buildVersion}/pets/fools.swf");
+                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/frog.swf"), $"/gordon/{buildVersion}/pets/frog.swf");
+                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/gnome.swf"), $"/gordon/{buildVersion}/pets/gnome.swf");
+                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/haloompa.swf"), $"/gordon/{buildVersion}/pets/haloompa.swf");
+                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/horse.swf"), $"/gordon/{buildVersion}/pets/horse.swf");
+                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/kittenbaby.swf"), $"/gordon/{buildVersion}/pets/kittenbaby.swf");
+                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/lion.swf"), $"/gordon/{buildVersion}/pets/lion.swf");
+                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/monkey.swf"), $"/gordon/{buildVersion}/pets/monkey.swf");
+                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/monster.swf"), $"/gordon/{buildVersion}/pets/monster.swf");
+                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/monsterplant.swf"), $"/gordon/{buildVersion}/pets/monsterplant.swf");
+                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/pig.swf"), $"/gordon/{buildVersion}/pets/pig.swf");
+                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/pigeonevil.swf"), $"/gordon/{buildVersion}/pets/pigeonevil.swf");
+                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/pigeongood.swf"), $"/gordon/{buildVersion}/pets/pigeongood.swf");
+                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/pigletbaby.swf"), $"/gordon/{buildVersion}/pets/pigletbaby.swf");
+                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/pterosaur.swf"), $"/gordon/{buildVersion}/pets/pterosaur.swf");
+                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/puppybaby.swf"), $"/gordon/{buildVersion}/pets/puppybaby.swf");
+                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/rhino.swf"), $"/gordon/{buildVersion}/pets/rhino.swf");
+                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/spider.swf"), $"/gordon/{buildVersion}/pets/spider.swf");
+                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/terrier.swf"), $"/gordon/{buildVersion}/pets/terrier.swf");
+                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/terrierbaby.swf"), $"/gordon/{buildVersion}/pets/terrierbaby.swf");
+                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/turtle.swf"), $"/gordon/{buildVersion}/pets/turtle.swf");
+                AddToQueue(new Uri($"{urlGordon}/{buildVersion}/velociraptor.swf"), $"/gordon/{buildVersion}/pets/velociraptor.swf");
             }
 
             string[] discoveries = { urlExternaltext, urlExternalvars, urlProductdata, urlFurnidataTXT, urlFurnidataXML, urlFigureData, urlEffectMap, urlFigureMap, urlFigureMapV2, urlAvatarActions };
