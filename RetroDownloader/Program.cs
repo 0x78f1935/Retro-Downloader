@@ -553,7 +553,7 @@ namespace RetroDownloader
             #endregion
 
             #region Clothing
-            if (doClothing && downloadAll) { 
+            if (doClothing || downloadAll) { 
                 XmlDocument xmlDoc = new XmlDocument();
                 string xmlData = request(urlFigureMap);
                 xmlDoc.LoadXml(xmlData);
@@ -561,7 +561,7 @@ namespace RetroDownloader
                 foreach (XmlNode node in root.ChildNodes)
                 {
                     string name = node.Attributes["id"].Value.ToString();
-                    AddToQueue(new Uri(ParseFormat($"{urlGordon}/{buildVersion}/{name}.swf")), $"/gordon/{buildVersion}/figure/");
+                    AddToQueue(new Uri(ParseFormat($"{urlGordon}/{buildVersion}/{name}.swf")), $"/gordon/{buildVersion}/");
                 }
             
                 xmlData = request(urlFigureMapV2);
@@ -570,7 +570,7 @@ namespace RetroDownloader
                 foreach (XmlNode node in root.ChildNodes)
                 {
                     string name = node.Attributes["id"].Value.ToString();
-                    AddToQueue(new Uri(ParseFormat($"{urlGordon}/{buildVersion}/{name}.swf")), $"/gordon/{buildVersion}/figure/");
+                    AddToQueue(new Uri(ParseFormat($"{urlGordon}/{buildVersion}/{name}.swf")), $"/gordon/{buildVersion}/");
                 }
             }
             #endregion
@@ -584,7 +584,7 @@ namespace RetroDownloader
                 foreach (XmlNode node in root.ChildNodes)
                 {
                     string name = node.Attributes["lib"].Value.ToString();
-                    AddToQueue(new Uri(ParseFormat($"{urlGordon}/{buildVersion}/{name}.swf")), $"/gordon/{buildVersion}/effects/");
+                    AddToQueue(new Uri(ParseFormat($"{urlGordon}/{buildVersion}/{name}.swf")), $"/gordon/{buildVersion}/");
                 }
             }
             #endregion
