@@ -4,7 +4,6 @@ using System.Text.RegularExpressions;
 using System.Net;
 using System.Diagnostics;
 using System.Xml;
-using System;
 
 
 namespace RetroDownloader
@@ -41,7 +40,6 @@ namespace RetroDownloader
         private string buildVersion;
         private string agent;
         private int maxConcurrentWorkers;
-        private bool asRevision;
         private bool downloadAll;
         #endregion
 
@@ -109,8 +107,6 @@ namespace RetroDownloader
             public string Agent { get; set; }
             [Option('w', "workers", Required = false, HelpText = "Total concurrent downloaders used for downloading data.", Default = 2)]
             public int Workers { get; set; }
-            [Option('r', "revision", Required = false, HelpText = "Save output in revision structure.", Default = false)]
-            public bool Revision { get; set; }
             #endregion
 
             #region Do Section
@@ -153,6 +149,50 @@ namespace RetroDownloader
             new Application(args);
         }
 
+        public static void WrapperEntrypoint(
+            bool debug,
+            string outputPath,
+            string buildVersion,
+            string agent,
+            int maxConcurrentWorkers,
+            bool downloadAll,
+            bool doArticles,
+            bool doBadges,
+            bool doClothing,
+            bool doEffects,
+            bool doFurniture,
+            bool doGamedata,
+            bool doGordon,
+            bool doHotelView,
+            bool doParts,
+            bool doPets,
+            bool doSound,
+            bool doQuests
+        ) {// Wrapper Entrypoint
+            string inputvalues = "";
+            inputvalues += $"-o {outputPath} ";
+            inputvalues += $"-b {buildVersion} ";
+            inputvalues += $"-a {agent} ";
+            inputvalues += $"-w {maxConcurrentWorkers} ";
+            if (debug) { inputvalues += "-v "; }
+            if (downloadAll) { inputvalues += "-A "; }
+            else { 
+                if (doArticles) { inputvalues += "-R "; }
+                if (doBadges) { inputvalues += "-B "; }
+                if (doClothing) { inputvalues += "-C "; }
+                if(doEffects) { inputvalues += "-E "; }
+                if(doFurniture) { inputvalues += "-F "; }
+                if(doGordon) { inputvalues += "-O "; }
+                if(doGamedata) { inputvalues += "-G "; }
+                if(doHotelView) { inputvalues += "-H "; }
+                if(doParts) { inputvalues += "-P "; }
+                if(doPets) { inputvalues += "-T "; }
+                if(doSound) { inputvalues += "-S "; }
+                if(doQuests) { inputvalues += "-Q "; }
+            }
+            new Application(inputvalues.Split(" "));
+        }
+
         private Application(string[] args)
         {
 
@@ -173,8 +213,6 @@ namespace RetroDownloader
                 agent = o.Agent;
                 maxConcurrentWorkers = o.Workers;
                 downloadAll = o.All;
-                asRevision = o.Revision;
-
                 doArticles = o.doArticles;
                 doBadges = o.doBadges;
                 doClothing = o.doClothing;
@@ -361,11 +399,6 @@ namespace RetroDownloader
                         string furni_name = match.ToString().Split($"\",\"")[0];
                         string icon_path = "/dcr/hof_furni/icons/";
                         string swf_path = "/dcr/hof_furni/";
-                        if (asRevision)
-                        {
-                            icon_path = "";
-                            swf_path = "";
-                        }
 
                         if (furni_name.Contains("*"))
                         {
@@ -555,11 +588,11 @@ namespace RetroDownloader
                     }
                 }
                 #region place furniture which habbo removed from the internet
-                DirectoryInfo d = new DirectoryInfo(@"Resources");
+                DirectoryInfo d = new DirectoryInfo(Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Resources"));
                 foreach (var file in d.GetFiles("*.swf"))
                 {
                     try { 
-                        File.Copy($"Resources/{file.Name}", $"{outputPath}/dcr/hof_furni/{file.Name}");
+                        File.Copy(file.FullName, $"{outputPath}/dcr/hof_furni/{file.Name}");
                         if (debug) { Console.WriteLine($"|[200]|  DOWNLOADING: {file}"); }
                     }
                     catch (System.IO.IOException) {
@@ -569,7 +602,7 @@ namespace RetroDownloader
                 foreach (var file in d.GetFiles("*.png"))
                 {
                     try { 
-                        File.Copy($"Resources/{file.Name}", $"{outputPath}/dcr/hof_furni/icons/{file.Name.Replace(".png", "_icon.png")}");
+                        File.Copy(file.FullName, $"{outputPath}/dcr/hof_furni/icons/{file.Name.Replace(".png", "_icon.png")}");
                         if (debug) { Console.WriteLine($"|[200]|  DOWNLOADING: {file}"); }
                     }
                     catch (System.IO.IOException) {
