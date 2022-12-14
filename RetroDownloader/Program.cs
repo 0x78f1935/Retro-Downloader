@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using System.Net;
 using System.Diagnostics;
 using System.Xml;
+using System;
 
 
 namespace RetroDownloader
@@ -368,14 +369,14 @@ namespace RetroDownloader
 
                         if (furni_name.Contains("*"))
                         {
-                            string icon_name = furni_name.Replace("*", "_");
+                            string icon_name = furni_name.Replace("*", "_").Replace(".", "_");
                             string file_name = furni_name.Split("*")[0];
                             AddToQueue(new Uri(ParseFormat($"{urlFurniture}/{furni_id}/{icon_name}_icon.png")), icon_path);
                             AddToQueue(new Uri(ParseFormat($"{urlFurniture}/{furni_id}/{file_name}.swf")), swf_path);
                         }
                         else {
-                            AddToQueue(new Uri(ParseFormat($"{urlFurniture}/{furni_id}/{furni_name}.swf")), swf_path);
-                            AddToQueue(new Uri(ParseFormat($"{urlFurniture}/{furni_id}/{furni_name}_icon.png")), icon_path);
+                            AddToQueue(new Uri(ParseFormat($"{urlFurniture}/{furni_id}/{furni_name.Replace(".", "_")}.swf")), swf_path);
+                            AddToQueue(new Uri(ParseFormat($"{urlFurniture}/{furni_id}/{furni_name.Replace(".", "_")}_icon.png")), icon_path);
                         }
 
                     }
@@ -541,18 +542,41 @@ namespace RetroDownloader
                         string name = furni.Attributes["classname"].Value.ToString();
                         if (name.Contains("*"))
                         {
-                            string icon_name = name.Replace("*", "_");
+                            string icon_name = name.Replace("*", "_").Replace(".", "_");
                             string file_name = name.Split("*")[0];
                             AddToQueue(new Uri(ParseFormat($"{urlFurniture}/{revision}/{icon_name}_icon.png")), "/dcr/hof_furni/icons/");
                             AddToQueue(new Uri(ParseFormat($"{urlFurniture}/{revision}/{file_name}.swf")), "/dcr/hof_furni/");
                         }
                         else
                         {
-                            AddToQueue(new Uri(ParseFormat($"{urlFurniture}/{revision}/{name}_icon.png")), "/dcr/hof_furni/icons/");
-                            AddToQueue(new Uri(ParseFormat($"{urlFurniture}/{revision}/{name}.swf")), "/dcr/hof_furni/");
+                            AddToQueue(new Uri(ParseFormat($"{urlFurniture}/{revision}/{name.Replace(".", "_")}_icon.png")), "/dcr/hof_furni/icons/");
+                            AddToQueue(new Uri(ParseFormat($"{urlFurniture}/{revision}/{name.Replace(".", "_")}.swf")), "/dcr/hof_furni/");
                         }
                     }
                 }
+                #region place furniture which habbo removed from the internet
+                DirectoryInfo d = new DirectoryInfo(@"Resources");
+                foreach (var file in d.GetFiles("*.swf"))
+                {
+                    try { 
+                        File.Copy($"Resources/{file.Name}", $"{outputPath}/dcr/hof_furni/{file.Name}");
+                        if (debug) { Console.WriteLine($"|[200]|  DOWNLOADING: {file}"); }
+                    }
+                    catch (System.IO.IOException) {
+                        if (debug) { Console.WriteLine($"|[XXX]|  SKIPPING: {file}"); }
+                    }
+                }
+                foreach (var file in d.GetFiles("*.png"))
+                {
+                    try { 
+                        File.Copy($"Resources/{file.Name}", $"{outputPath}/dcr/hof_furni/icons/{file.Name.Replace(".png", "_icon.png")}");
+                        if (debug) { Console.WriteLine($"|[200]|  DOWNLOADING: {file}"); }
+                    }
+                    catch (System.IO.IOException) {
+                        if (debug) { Console.WriteLine($"|[XXX]|  SKIPPING: {file}"); }
+                    }
+                }
+                #endregion
             }
             #endregion
 
