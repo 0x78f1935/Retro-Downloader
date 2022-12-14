@@ -368,8 +368,10 @@ namespace RetroDownloader
 
                         if (furni_name.Contains("*"))
                         {
-                            furni_name = furni_name.Replace("*", "_");
-                            AddToQueue(new Uri(ParseFormat($"{urlFurniture}/{furni_id}/{furni_name}_icon.png")), icon_path);
+                            string icon_name = furni_name.Replace("*", "_");
+                            string file_name = furni_name.Split("*")[0];
+                            AddToQueue(new Uri(ParseFormat($"{urlFurniture}/{furni_id}/{icon_name}_icon.png")), icon_path);
+                            AddToQueue(new Uri(ParseFormat($"{urlFurniture}/{furni_id}/{file_name}.swf")), swf_path);
                         }
                         else {
                             AddToQueue(new Uri(ParseFormat($"{urlFurniture}/{furni_id}/{furni_name}.swf")), swf_path);
@@ -539,8 +541,10 @@ namespace RetroDownloader
                         string name = furni.Attributes["classname"].Value.ToString();
                         if (name.Contains("*"))
                         {
-                            name = name.Replace("*", "_");
-                            AddToQueue(new Uri(ParseFormat($"{urlFurniture}/{revision}/{name}_icon.png")), "/dcr/hof_furni/icons/");
+                            string icon_name = name.Replace("*", "_");
+                            string file_name = name.Split("*")[0];
+                            AddToQueue(new Uri(ParseFormat($"{urlFurniture}/{revision}/{icon_name}_icon.png")), "/dcr/hof_furni/icons/");
+                            AddToQueue(new Uri(ParseFormat($"{urlFurniture}/{revision}/{file_name}.swf")), "/dcr/hof_furni/");
                         }
                         else
                         {
