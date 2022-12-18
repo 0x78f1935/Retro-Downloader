@@ -18,8 +18,7 @@ clr.AddReference("RetroDownloader")
 from RetroDownloader import Application
 
 
-
-class DownloadWrapper(object):
+class DownloadWrapper(Application):
     def __init__(
         self,
         debug: bool,
@@ -39,7 +38,8 @@ class DownloadWrapper(object):
         doParts: bool,
         doPets: bool,
         doSound: bool,
-        doQuest: bool
+        doQuest: bool,
+        embeddir: str
     ) -> None:
         """
         Python wrapper for RetroDownloader. All arguments must be provided. Otherwise it won't work.
@@ -61,7 +61,8 @@ class DownloadWrapper(object):
             doParts (bool): Download Badgeparts,
             doPets (bool): Download Pets,
             doSound (bool): Download Sounds,
-            doQuest (bool): Download Quests, 
+            doQuest (bool): Download Quests,
+            embeddir (str): Set subdir in embedded application
         """
         args = (
             debug,
@@ -82,5 +83,13 @@ class DownloadWrapper(object):
             doPets,
             doSound,
             doQuest,
+            embeddir
         )
         Application.WrapperEntrypoint(*args)  # Starts download
+
+    @property
+    def is_running(self):
+        """
+        Indicate if the program is actively running
+        """
+        return Application.isRunning

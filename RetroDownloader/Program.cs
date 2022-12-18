@@ -34,13 +34,15 @@ namespace RetroDownloader
     #region Application
     public class Application
     {
+        public static bool isRunning = true;  // Indicator if the application is running
+
         #region Argument Parser Variables
-        private bool debug;
-        private string outputPath;
-        private string buildVersion;
-        private string agent;
-        private int maxConcurrentWorkers;
-        private bool downloadAll;
+        private bool debug;  //  Verbose
+        private string outputPath;  // Out
+        private string buildVersion;  // Build
+        private string agent; // Agent
+        private int maxConcurrentWorkers; // Workers
+        private bool downloadAll; // Download all indicator
         #endregion
 
         #region Uri(s)
@@ -56,10 +58,10 @@ namespace RetroDownloader
         private string urlBadges = "http://images.habbo.com/c_images/album1584";
         private string urlGordon = "https://images.habbo.com/gordon";
         private string urlQuests = "https://images.habbo.com/c_images/Quests";
-        private string urlEffectMap;
-        private string urlAvatarActions;
-        private string urlFigureMap;
-        private string urlFigureMapV2;
+        private string urlEffectMap;  // Will be set at  runtime
+        private string urlAvatarActions;  // Will be set at runtime
+        private string urlFigureMap; // Will be set at runtime
+        private string urlFigureMapV2;  // Will be set at runtime
         #endregion
 
         #region Static Variables
@@ -68,7 +70,6 @@ namespace RetroDownloader
         private Thread ThreadDownloaderSlave;  // Holds thread which we use for downloading files
         private Thread ThreadDownloaderSuperSlave;  // Holds thread which we use for downloading files
         private Thread ThreadDiscovery;   // This thread is used to discover things such as icons
-        private bool isRunning = false;   // Indicator if the application is running
         private bool _cred;
         private string magic = @"(\${[a-zA-Z.]+}|(http|https):\/\/)[a-zA-Z._0-9/]+(\.html|\.htm|\.php|\.css|\.js|\.json|\.xml|\.swf|\.flv|\.png|\.jpeg|\.jpg|\.gif|\.bmp|\.ico|\.tiff|\.tif|\.svg|\.otf|\.ttf|\.woff|\.woff2|\.eot|\.zip|\.rar|\.7z|\.tar|\.gz|\.bz2|\.xz|\.pdf|\.doc|\.docx|\.xls|\.xlsx|\.ppt|\.pptx|\.ods|\.odt|\.odp|\.mp3|\.wav|\.wma|\.m4a|\.aac|\.ogg|\.mp4|\.m4v|\.webm|\.avi|\.wmv|\.mov|\.mpg|\.mpeg|\.3gp|\.mkv|\.txt|\.csv|\.tsv|\.gif)";
         #endregion
@@ -76,28 +77,30 @@ namespace RetroDownloader
         #region Application utilities
         private ConcurrentQueue<string> QueueDownloads = new ConcurrentQueue<string>();  // Holds items which are going to be downloaded
         private Stopwatch timer = new Stopwatch();  // Tracks execution time of application
+        private string embeddir;  // Holds additional subdirs
         #endregion
 
         #region Do Section
-        private bool doArticles;
-        private bool doBadges;
-        private bool doClothing;
-        private bool doEffects;
-        private bool doFurniture;
-        private bool doGamedata;
-        private bool doGordon;
-        private bool doHotelView;
-        private bool doParts;
-        private bool doPets;
-        private bool doSound;
-        private bool doQuests;
+        // This section gets ignored if downloadAll is True
+        private bool doArticles;  // Download articles
+        private bool doBadges;  // Download badges
+        private bool doClothing; // Download clothing
+        private bool doEffects;  // Download effects
+        private bool doFurniture;  // Download furniture
+        private bool doGamedata;  // Download gamedata
+        private bool doGordon;  // Download gordon
+        private bool doHotelView;  // Download Hotel view
+        private bool doParts;  // Download Parts
+        private bool doPets; // Download pets
+        private bool doSound;  // Download sounds
+        private bool doQuests;  // Download Quests
         #endregion
 
         #region Application arguments
         private class Options
         {
             #region Application Arguments
-            [Option('v', "verbose", Required = false, HelpText = "Set output to verbose messages.", Default = false)]
+            [Option('v', "verbose", Required = false, HelpText = "Output debug stdout information.", Default = false)]
             public bool Verbose { get; set; }
             [Option('o', "out", Required = false, HelpText = "Set the output folder.", Default = ".")]
             public string Out { get; set; }
@@ -107,6 +110,8 @@ namespace RetroDownloader
             public string Agent { get; set; }
             [Option('w', "workers", Required = false, HelpText = "Total concurrent downloaders used for downloading data.", Default = 2)]
             public int Workers { get; set; }
+            [Option('e', "embeddir", Required = false, HelpText = "Manipulate the embedded directory. Delimiter: \";\". See Readme.", Default = "")]
+            public string embeddir { get; set; }
             #endregion
 
             #region Do Section
@@ -167,13 +172,15 @@ namespace RetroDownloader
             bool doParts,
             bool doPets,
             bool doSound,
-            bool doQuests
+            bool doQuests,
+            string embeddir
         ) {// Wrapper Entrypoint
             string inputvalues = "";
             inputvalues += $"-o {outputPath} ";
             inputvalues += $"-b {buildVersion} ";
             inputvalues += $"-a {agent} ";
             inputvalues += $"-w {maxConcurrentWorkers} ";
+            if (embeddir.Count() > 0) { inputvalues += $"-e {embeddir} "; }
             if (debug) { inputvalues += "-v "; }
             if (downloadAll) { inputvalues += "-A "; }
             else { 
@@ -225,6 +232,7 @@ namespace RetroDownloader
                 doPets = o.doPets;
                 doSound = o.doSound;
                 doQuests = o.doQuests;
+                embeddir = o.embeddir;
             }
             );
             #endregion
@@ -588,7 +596,13 @@ namespace RetroDownloader
                     }
                 }
                 #region place furniture which habbo removed from the internet
-                DirectoryInfo d = new DirectoryInfo(Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Resources"));
+                string[] path_combination = { System.AppDomain.CurrentDomain.BaseDirectory };
+                foreach (string path in embeddir.Split(";"))
+                {
+                    path_combination = path_combination.Concat(new[] { path }).ToArray();
+                }
+                path_combination = path_combination.Concat(new[] { "Resources" }).ToArray();
+                DirectoryInfo d = new DirectoryInfo(Path.Combine(path_combination));
                 foreach (var file in d.GetFiles("*.swf"))
                 {
                     try { 
