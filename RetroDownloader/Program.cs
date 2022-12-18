@@ -306,7 +306,6 @@ namespace RetroDownloader
             {
                 ThreadDiscovery.Join();
             }
-            isRunning = false;
             #endregion
         }
 
@@ -1075,6 +1074,8 @@ namespace RetroDownloader
                 if (debug) { Console.WriteLine($"|[---]|  WORKING-ON: {discovery}"); }
                 ScrapeLink(new Uri(discovery));
             };
+
+            isRunning = false;
         }
 
         #region Production build selector
