@@ -39,6 +39,8 @@ class DownloadWrapper(Application):
         doPets: bool,
         doSound: bool,
         doQuest: bool,
+        doArchive: bool,
+        doCatalog: bool,
         embeddir: str
     ) -> None:
         """
@@ -62,6 +64,8 @@ class DownloadWrapper(Application):
             doPets (bool): Download Pets,
             doSound (bool): Download Sounds,
             doQuest (bool): Download Quests,
+            doArchive (bool): Download Archive
+            doCatalog (bool): Download Catalog Icons
             embeddir (str): Set subdir in embedded application
         """
         args = (
@@ -83,6 +87,8 @@ class DownloadWrapper(Application):
             doPets,
             doSound,
             doQuest,
+            doArchive,
+            doCatalog,
             embeddir
         )
         Application.WrapperEntrypoint(*args)  # Starts download

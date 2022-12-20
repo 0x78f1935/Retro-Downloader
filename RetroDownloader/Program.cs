@@ -71,7 +71,7 @@ namespace RetroDownloader
         private Thread ThreadDownloaderSuperSlave;  // Holds thread which we use for downloading files
         private Thread ThreadDiscovery;   // This thread is used to discover things such as icons
         private bool _cred;
-        private string magic = @"(\${[a-zA-Z.]+}|(http|https):\/\/)[a-zA-Z._0-9/]+(\.html|\.htm|\.php|\.css|\.js|\.json|\.xml|\.swf|\.flv|\.png|\.jpeg|\.jpg|\.gif|\.bmp|\.ico|\.tiff|\.tif|\.svg|\.otf|\.ttf|\.woff|\.woff2|\.eot|\.zip|\.rar|\.7z|\.tar|\.gz|\.bz2|\.xz|\.pdf|\.doc|\.docx|\.xls|\.xlsx|\.ppt|\.pptx|\.ods|\.odt|\.odp|\.mp3|\.wav|\.wma|\.m4a|\.aac|\.ogg|\.mp4|\.m4v|\.webm|\.avi|\.wmv|\.mov|\.mpg|\.mpeg|\.3gp|\.mkv|\.txt|\.csv|\.tsv|\.gif)";
+        private string magic = @"(\${[a-zA-Z.]+}|((http|https):\/\/)|[a-z_A-Z]+/|/)[a-zA-Z._0-9/]+(\.json|\.xml|\.swf|\.flv|\.png|\.jpeg|\.jpg|\.gif|\.bmp|\.ico|\.tiff|\.tif|\.svg|\.otf|\.ttf|\.woff|\.woff2|\.mp3|\.wav|\.wma|\.m4a|\.mp4|\.webm|\.avi|\.wmv|\.mov|\.mpg|\.mpeg|\.3gp|\.mkv|\.txt|\.csv|\.tsv|\.gif)";
         #endregion
 
         #region Application utilities
@@ -94,6 +94,8 @@ namespace RetroDownloader
         private bool doPets; // Download pets
         private bool doSound;  // Download sounds
         private bool doQuests;  // Download Quests
+        private bool doArchive; // Download Archive
+        private bool doCatalog; // Download catel
         #endregion
 
         #region Application arguments
@@ -139,6 +141,10 @@ namespace RetroDownloader
             public bool doSound{ get; set; }
             [Option('Q', "quests", Required = false, HelpText = "Download Quests.")]
             public bool doQuests { get; set; }
+            [Option('L', "catalog", Required = false, HelpText = "Download Catalog Icons.")]
+            public bool doCatalog { get; set; }
+            [Option('I', "archive", Required = false, HelpText = "Download Archive.")]
+            public bool doArchive { get; set; }
             #endregion
 
             #region The I don't care Section
@@ -173,6 +179,8 @@ namespace RetroDownloader
             bool doPets,
             bool doSound,
             bool doQuests,
+            bool doArchive,
+            bool doCatalog,
             string embeddir
         ) {// Wrapper Entrypoint
             string inputvalues = "";
@@ -187,15 +195,17 @@ namespace RetroDownloader
                 if (doArticles) { inputvalues += "-R "; }
                 if (doBadges) { inputvalues += "-B "; }
                 if (doClothing) { inputvalues += "-C "; }
-                if(doEffects) { inputvalues += "-E "; }
-                if(doFurniture) { inputvalues += "-F "; }
-                if(doGordon) { inputvalues += "-O "; }
-                if(doGamedata) { inputvalues += "-G "; }
-                if(doHotelView) { inputvalues += "-H "; }
-                if(doParts) { inputvalues += "-P "; }
-                if(doPets) { inputvalues += "-T "; }
-                if(doSound) { inputvalues += "-S "; }
-                if(doQuests) { inputvalues += "-Q "; }
+                if (doEffects) { inputvalues += "-E "; }
+                if (doFurniture) { inputvalues += "-F "; }
+                if (doGordon) { inputvalues += "-O "; }
+                if (doGamedata) { inputvalues += "-G "; }
+                if (doHotelView) { inputvalues += "-H "; }
+                if (doParts) { inputvalues += "-P "; }
+                if (doPets) { inputvalues += "-T "; }
+                if (doSound) { inputvalues += "-S "; }
+                if (doQuests) { inputvalues += "-Q "; }
+                if (doArchive) { inputvalues += "-I "; }
+                if (doCatalog) { inputvalues += "-L "; }
             }
             new Application(inputvalues.Split(" "));
         }
@@ -232,6 +242,8 @@ namespace RetroDownloader
                 doPets = o.doPets;
                 doSound = o.doSound;
                 doQuests = o.doQuests;
+                doArchive= o.doArchive;
+                doCatalog = o.doCatalog;
                 embeddir = o.embeddir;
             }
             );
@@ -320,12 +332,13 @@ namespace RetroDownloader
             {
                 return input.Replace("${flash.client.url}", "https://images.habbo.com/gordon/" + buildVersion + "/");
             }
-            else if (input.StartsWith("src=")) {
-                input = input.Split("\"")[1];
+            else if (input.StartsWith("src="))
+            {
+                return input.Split("\"")[1];
             }
             else
             {
-                if (!input.StartsWith("http"))
+                if (!input.StartsWith("http") && !input.StartsWith("/"))
                 {
                     if (debug) { Console.WriteLine("|  RIP"); }
                 }
@@ -350,33 +363,179 @@ namespace RetroDownloader
         {
             #region Apply regex magic
             string source = request(targetedLink.ToString());
-            foreach (string Line in source.Split(Environment.NewLine.ToCharArray()))
-            {
-                Match match = Regex.Match(Line, magic);
-                if (match.Success)
-                {
-                    Uri uri = new Uri(ParseFormat(match.ToString()));
-                    AddToQueue(uri, "");
-                }
 
-                // Check for quests
-                if ((doQuests || downloadAll) && targetedLink.ToString().Contains("external_flash_texts"))
-                {
-                    match = Regex.Match(Line, @"^quests\.[a-zA-Z0-9_]+\.[a-zA-Z0-9_]+");
-                    if (match.Success)
-                    {
-                        string[] quest_items = match.ToString().Split(".");
-                        string fname = quest_items[2].Replace("_name", "");
-                        fname = String.Join("_", fname.Split("_").SkipLast(1).ToArray());
-                        string target_uri = $"{urlQuests}/{quest_items[1]}_{fname}.png";
-                        target_uri = target_uri.Replace("_.png", ".png");
-                        Uri uri_png = new Uri(ParseFormat(target_uri));
-                        AddToQueue(uri_png, "");
+            try
+            {
+                foreach (Match match in Regex.Matches(source, magic, RegexOptions.None, TimeSpan.FromSeconds(1))) {
+                    if (debug) { Console.WriteLine($"[***] Found '{match.Value}' at position {match.Index}"); }
+                    if (match.Success) { 
+                        Uri _uri = null;
+                        string _match = match.ToString();
+                        if (_match.StartsWith('/'))
+                        {
+                            if (targetedLink.ToString().Contains(".php"))
+                            {
+                                _uri = new Uri(ParseFormat($"{targetedLink.ToString().Replace(".php", "")}{_match}"));
+                            }
+                            else if (targetedLink.ToString().EndsWith("/")) {
+                                _uri = new Uri(ParseFormat($"{targetedLink.ToString().Substring(0, targetedLink.ToString().Length - 1)}{_match}"));
+                            }
+                            else
+                            {
+                                _uri = new Uri(ParseFormat($"{targetedLink}{_match}"));
+                            }
+                        }
+                        else {
+                            if (!_match.StartsWith("http") && !_match.StartsWith("/")) {
+                                if (!_match.Contains("web_promo_small") && !_match.StartsWith("$"))
+                                {
+                                    string _ = $"https://www.habborator.org/archive/{_match}";
+                                    _uri = new Uri(ParseFormat(_));
+                                }
+                                else if (!_match.Contains("https://images.habbo.com/") && !_match.StartsWith("$"))
+                                {
+                                    string _ = $"https://images.habbo.com/c_images/{_match}";
+                                    _uri = new Uri(ParseFormat(_));
+                                }
+                                else if (_match.StartsWith("$")) {
+                                    _uri = new Uri(ParseFormat(_match));
+                                }
+                            }
+                            else if (_match.StartsWith("http"))
+                            {
+                                _uri = new Uri(ParseFormat(_match));
+                            }
+                        }
+
+                        if (_uri.ToString().Contains("habborator.org")) {
+                            AddToQueue(_uri, "/c_images/archive/");
+                        } else { 
+                            AddToQueue(_uri, "");
+                        }
                     }
                 }
+            }
+            catch (RegexMatchTimeoutException)
+            {
+                // Do Nothing: Assume that timeout represents no match.
+            }
 
-                //Check for badges
-                if ( ( doBadges || downloadAll ) && targetedLink.ToString().Contains("external_flash_texts")) {
+            // Check for quests
+            if ((doQuests || downloadAll) && targetedLink.ToString().Contains("external_flash_texts"))
+            {
+
+                try
+                {
+                    foreach (Match match in Regex.Matches(source, @"^quests\.[a-zA-Z0-9_]+\.[a-zA-Z0-9_]+", RegexOptions.None, TimeSpan.FromSeconds(1)))
+                    {
+                        if (debug) { Console.WriteLine($"[***] Found '{match.Value}' at position {match.Index}"); }
+                        if (match.Success)
+                        {
+                            string[] quest_items = match.ToString().Split(".");
+                            string fname = quest_items[2].Replace("_name", "");
+                            fname = String.Join("_", fname.Split("_").SkipLast(1).ToArray());
+                            string target_uri = $"{urlQuests}/{quest_items[1]}_{fname}.png";
+                            target_uri = target_uri.Replace("_.png", ".png");
+                            Uri uri_png = new Uri(ParseFormat(target_uri));
+                            AddToQueue(uri_png, "");
+                        }
+                    }
+                }
+                catch (RegexMatchTimeoutException)
+                {
+                    // Do Nothing: Assume that timeout represents no match.
+                }
+            }
+
+
+            //Check for badges
+            if ((doBadges || downloadAll) && targetedLink.ToString().Contains("external_flash_texts"))
+            {
+
+                try
+                {
+                    foreach (Match match in Regex.Matches(source, @"^quests\.[a-zA-Z0-9_]+\.[a-zA-Z0-9_]+", RegexOptions.None, TimeSpan.FromSeconds(1)))
+                    {
+                        if (debug) { Console.WriteLine($"[***] Found '{match.Value}' at position {match.Index}"); }
+                        if (match.Success)
+                        {
+                            string[] quest_items = match.ToString().Split(".");
+                            string fname = quest_items[2].Replace("_name", "");
+                            fname = String.Join("_", fname.Split("_").SkipLast(1).ToArray());
+                            string target_uri = $"{urlQuests}/{quest_items[1]}_{fname}.png";
+                            target_uri = target_uri.Replace("_.png", ".png");
+                            Uri uri_png = new Uri(ParseFormat(target_uri));
+                            AddToQueue(uri_png, "");
+                        }
+                    }
+                }
+                catch (RegexMatchTimeoutException)
+                {
+                    // Do Nothing: Assume that timeout represents no match.
+                }
+            }
+
+            // Furniture
+            if ((doFurniture || downloadAll) && targetedLink.ToString().Contains("furnidata/1"))
+            {
+                try
+                {
+                    foreach (Match match in Regex.Matches(source, @"([0-9a-zA-Z_]{4,}?[0-9]?(?<!\btrue|false\b))(\*{1}[0-9]+)?\""\,\""[0-9]+", RegexOptions.None, TimeSpan.FromSeconds(1)))
+                    {
+                        if (debug) { Console.WriteLine($"[***] Found '{match.Value}' at position {match.Index}"); }
+                        if (match.Success)
+                        {
+                            string furni_id = match.ToString().Split($"\",\"")[1];
+                            string furni_name = match.ToString().Split($"\",\"")[0];
+                            string icon_path = "/dcr/hof_furni/icons/";
+                            string swf_path = "/dcr/hof_furni/";
+
+                            if (furni_name.Contains("*"))
+                            {
+                                string icon_name = furni_name.Replace("*", "_").Replace(".", "_");
+                                string file_name = furni_name.Split("*")[0];
+                                AddToQueue(new Uri(ParseFormat($"{urlFurniture}/{furni_id}/{icon_name}_icon.png")), icon_path);
+                                AddToQueue(new Uri(ParseFormat($"{urlFurniture}/{furni_id}/{file_name}.swf")), swf_path);
+                            }
+                            else
+                            {
+                                AddToQueue(new Uri(ParseFormat($"{urlFurniture}/{furni_id}/{furni_name.Replace(".", "_")}.swf")), swf_path);
+                                AddToQueue(new Uri(ParseFormat($"{urlFurniture}/{furni_id}/{furni_name.Replace(".", "_")}_icon.png")), icon_path);
+                            }
+                        }
+                    }
+                }
+                catch (RegexMatchTimeoutException)
+                {
+                    // Do Nothing: Assume that timeout represents no match.
+                }
+            }
+
+            // Hotel View
+            if ((doHotelView || downloadAll) && targetedLink.ToString().Contains("external_variables"))
+            {
+                try
+                {
+                    foreach (Match match in Regex.Matches(source, @"(?<=landing\.view\.background.+=).+(?<=reception\/)(.+)", RegexOptions.None, TimeSpan.FromSeconds(1)))
+                    {
+                        if (debug) { Console.WriteLine($"[***] Found '{match.Value}' at position {match.Index}"); }
+                        if (match.Success)
+                        {
+                            AddToQueue(new Uri(ParseFormat(match.ToString())), "/c_images/reception");
+                        }
+                    }
+                }
+                catch (RegexMatchTimeoutException)
+                {
+                    // Do Nothing: Assume that timeout represents no match.
+                }
+            }
+
+            if ((doBadges || downloadAll) && targetedLink.ToString().Contains("external_flash_texts"))
+            {
+                foreach (string Line in source.Split(Environment.NewLine.ToCharArray()))
+                {
+                    //Check for badges
                     Match matchOne = Regex.Match(Line, @"^badge_(?:name|desc)_([^=]+)=");
                     Match matchTwo = Regex.Match(Line, @"^(.*)_badge_(?:name|desc).*=");
                     if (matchOne.Success || matchTwo.Success)
@@ -394,38 +553,6 @@ namespace RetroDownloader
                         Uri uri_gif = new Uri(ParseFormat($"{urlBadges}/{badge}.gif"));
                         AddToQueue(uri_png, "/c_images/album1584/");
                         AddToQueue(uri_gif, "/c_images/album1584/");
-                    }
-                }
-
-                if ( (doFurniture || downloadAll) && targetedLink.ToString().Contains("furnidata/1"))
-                {
-                    match = Regex.Match(Line, @"([0-9a-zA-Z_]{4,}?[0-9]?(?<!\btrue|false\b))(\*{1}[0-9]+)?\""\,\""[0-9]+");
-                    if (match.Success)
-                    {
-                        string furni_id = match.ToString().Split($"\",\"")[1];
-                        string furni_name = match.ToString().Split($"\",\"")[0];
-                        string icon_path = "/dcr/hof_furni/icons/";
-                        string swf_path = "/dcr/hof_furni/";
-
-                        if (furni_name.Contains("*"))
-                        {
-                            string icon_name = furni_name.Replace("*", "_").Replace(".", "_");
-                            string file_name = furni_name.Split("*")[0];
-                            AddToQueue(new Uri(ParseFormat($"{urlFurniture}/{furni_id}/{icon_name}_icon.png")), icon_path);
-                            AddToQueue(new Uri(ParseFormat($"{urlFurniture}/{furni_id}/{file_name}.swf")), swf_path);
-                        }
-                        else {
-                            AddToQueue(new Uri(ParseFormat($"{urlFurniture}/{furni_id}/{furni_name.Replace(".", "_")}.swf")), swf_path);
-                            AddToQueue(new Uri(ParseFormat($"{urlFurniture}/{furni_id}/{furni_name.Replace(".", "_")}_icon.png")), icon_path);
-                        }
-
-                    }
-                }
-
-                if ((doHotelView || downloadAll) && targetedLink.ToString().Contains("external_variables")) {
-                    match = Regex.Match(Line, @"(?<=landing\.view\.background.+=).+(?<=reception\/)(.+)");
-                    if (match.Success) {
-                        AddToQueue(new Uri(ParseFormat(match.ToString())), "/c_images/reception");
                     }
                 }
             }
@@ -457,6 +584,9 @@ namespace RetroDownloader
 
                     //path = path.Split(".com").Reverse().First();
                     #region Create path if not exists
+                    if (output_path.Contains("http")) {
+                        Console.Write("ew");
+                    }
                     String folder = Path.GetDirectoryName(output_path);
                     if (!Directory.Exists(folder))
                     {
@@ -510,6 +640,7 @@ namespace RetroDownloader
                 Console.WriteLine("|+|Brought you by: Undeƒined -> https://github.com/0x78f1935");
                 Console.WriteLine("|+|Inspired by: Habbo-Downloader -> https://github.com/higoka/habbo-downloader");
                 Console.WriteLine("|+|Inspired by: All-in-one-converter -> https://git.camwijs.eu/duckietm/All-in-1-converter");
+                Console.WriteLine("|+|Archive by: Habborator -> https://www.habborator.org/archive/index.php");
                 Console.WriteLine("|+|Build for: CMS -> https://github.com/0x78f1935/Retro-CMS");
                 Console.WriteLine($"|  Total Downloads: {total_downloads}");
                 Console.WriteLine($"|  Running time: {timer.Elapsed}");
@@ -541,7 +672,7 @@ namespace RetroDownloader
                                 AddToQueue(target, "/c_images/catalogue/");
                             }
                             else
-                            { 
+                            {
                                 AddToQueue(target, "");
                             }
                             totalFailed = 0;
@@ -562,7 +693,9 @@ namespace RetroDownloader
 
         private void Discovery()
         {
-            IterativeAddDownloadQueue(new Uri(urlCatalogicon), ".png");
+            if (doCatalog || downloadAll) { 
+                IterativeAddDownloadQueue(new Uri(urlCatalogicon), ".png");
+            }
             if (doSound || downloadAll) { 
                 IterativeAddDownloadQueue(new Uri(urlSoundmachine), ".mp3");
             }
@@ -664,7 +797,7 @@ namespace RetroDownloader
             #endregion
 
             #region Articles
-            if (doArticles || downloadAll) { 
+            if (doArticles || downloadAll) {
                 int canFail = 3;
                 int totalFailed = 0;
                 int matched = 0;
@@ -1066,6 +1199,43 @@ namespace RetroDownloader
                 AddToQueue(new Uri($"{urlGordon}/{buildVersion}/terrierbaby.swf"), $"/gordon/{buildVersion}/pets/terrierbaby.swf");
                 AddToQueue(new Uri($"{urlGordon}/{buildVersion}/turtle.swf"), $"/gordon/{buildVersion}/pets/turtle.swf");
                 AddToQueue(new Uri($"{urlGordon}/{buildVersion}/velociraptor.swf"), $"/gordon/{buildVersion}/pets/velociraptor.swf");
+            }
+
+            if (doArchive || downloadAll) { 
+                ScrapeLink(new Uri("https://www.habborator.org/archive/boxes.php"));
+                ScrapeLink(new Uri("https://www.habborator.org/archive/catalogue.php"));
+                ScrapeLink(new Uri("https://www.habborator.org/archive/items.php"));
+                ScrapeLink(new Uri("https://www.habborator.org/archive/characters.php"));
+                ScrapeLink(new Uri("https://www.habborator.org/archive/frank.php"));
+                ScrapeLink(new Uri("https://www.habborator.org/archive/callie.php"));
+                ScrapeLink(new Uri("https://www.habborator.org/archive/webview.php"));
+                ScrapeLink(new Uri("https://www.habborator.org/archive/nav_1.php"));
+                ScrapeLink(new Uri("https://www.habborator.org/archive/nav_2.php"));
+                ScrapeLink(new Uri("https://www.habborator.org/archive/nav_3.php"));
+                ScrapeLink(new Uri("https://www.habborator.org/archive/nav_1.php"));
+                ScrapeLink(new Uri("https://www.habborator.org/archive/nav_2.php"));
+                ScrapeLink(new Uri("https://www.habborator.org/archive/nav_3.php"));
+                ScrapeLink(new Uri("https://www.habborator.org/archive/banners.php"));
+                ScrapeLink(new Uri("https://www.habborator.org/archive/banners2.php"));
+                ScrapeLink(new Uri("https://www.habborator.org/archive/partner.php"));
+                ScrapeLink(new Uri("https://www.habborator.org/archive/hotcampaigns.php"));
+                ScrapeLink(new Uri("https://www.habborator.org/archive/interstitials.php"));
+                ScrapeLink(new Uri("https://www.habborator.org/archive/topstory_generic.php"));
+                ScrapeLink(new Uri("https://www.habborator.org/archive/topstory_1.php"));
+                ScrapeLink(new Uri("https://www.habborator.org/archive/topstory_2.php"));
+                ScrapeLink(new Uri("https://www.habborator.org/archive/topstory_ae.php"));
+                ScrapeLink(new Uri("https://www.habborator.org/archive/topstory_fm.php"));
+                ScrapeLink(new Uri("https://www.habborator.org/archive/topstory_ns.php"));
+                ScrapeLink(new Uri("https://www.habborator.org/archive/topstory_tz.php"));
+                ScrapeLink(new Uri("https://www.habborator.org/archive/topstory_promo.php"));
+                ScrapeLink(new Uri("https://www.habborator.org/archive/habblets.php"));
+                ScrapeLink(new Uri("https://www.habborator.org/archive/stickers.php"));
+                ScrapeLink(new Uri("https://www.habborator.org/archive/alphabet.php"));
+                ScrapeLink(new Uri("https://www.habborator.org/archive/xmas.php"));
+                ScrapeLink(new Uri("https://www.habborator.org/archive/love.php"));
+                ScrapeLink(new Uri("https://www.habborator.org/archive/habbowood.php"));
+                ScrapeLink(new Uri("https://www.habborator.org/archive/occasional.php"));
+                ScrapeLink(new Uri("https://www.habborator.org/archive/limited.php"));
             }
 
             string[] discoveries = { urlExternaltext, urlExternalvars, urlProductdata, urlFurnidataTXT, urlFurnidataXML, urlFigureData, urlEffectMap, urlFigureMap, urlFigureMapV2, urlAvatarActions };
