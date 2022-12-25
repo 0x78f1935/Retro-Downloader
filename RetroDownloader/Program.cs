@@ -691,6 +691,21 @@ namespace RetroDownloader
             }
         }
 
+        private static void CopyFilesRecursively(string sourcePath, string targetPath)
+        {
+            //Now Create all of the directories
+            foreach (string dirPath in Directory.GetDirectories(sourcePath, "*", SearchOption.AllDirectories))
+            {
+                Directory.CreateDirectory(dirPath.Replace(sourcePath, targetPath));
+            }
+
+            //Copy all the files & Replaces any files with the same name
+            foreach (string newPath in Directory.GetFiles(sourcePath, "*.*", SearchOption.AllDirectories))
+            {
+                File.Copy(newPath, newPath.Replace(sourcePath, targetPath), true);
+            }
+        }
+
         private void Discovery()
         {
             if (doCatalog || downloadAll) { 
@@ -755,6 +770,10 @@ namespace RetroDownloader
                         if (debug) { Console.WriteLine($"|[XXX]|  SKIPPING: {file}"); }
                     }
                 }
+                if (debug) { Console.WriteLine($"|[XXX]|  COPYING LOST FILES"); }
+                path_combination = path_combination.Concat(new[] { "default-assets" }).ToArray();
+                DirectoryInfo f = new DirectoryInfo(Path.Combine(path_combination));
+                CopyFilesRecursively(f.ToString(), outputPath);
                 #endregion
             }
             #endregion
